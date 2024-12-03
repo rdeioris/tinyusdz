@@ -1241,6 +1241,71 @@ static bool OverridePrimSpecRec(uint32_t depth, PrimSpec &dst,
   return true;
 }
 
+static bool ApplyVariantToPrimSpecRec(uint32_t depth, PrimSpec &dst,
+                                const PrimSpec &src, std::string *warn,
+                                std::string *err) {
+  (void)warn;
+
+  if (depth > (1024 * 1024 * 128)) {
+    PUSH_ERROR_AND_RETURN("PrimSpec tree too deep.");
+  }
+
+  if (dst.specifier() == Specifier::Over) {
+    dst.specifier() = src.specifier();
+    dst.typeName() = src.typeName();
+
+    // Combine metadata
+    dst.metas().update_from(src.metas(), false);
+
+    // add non existing properties
+    for (const auto &prop : src.props()) {
+      // add if not existent
+      if (dst.props().count(prop.first) == 0) {
+        dst.props()[prop.first] = prop.second;
+      }
+    }
+  }
+  else if (src.specifier() == Specifier::Over) {
+    // Override metadata
+    dst.metas().update_from(src.metas());
+
+    // Override properties
+    for (const auto &prop : src.props()) {
+      // replace
+      dst.props()[prop.first] = prop.second;
+    }
+  }
+  else {
+    PUSH_ERROR_AND_RETURN("Invalid specifier for variant.");
+  }
+
+  // Override child primspecs.
+  for (auto &child : dst.children()) {
+    auto src_it = std::find_if(
+        src.children().begin(), src.children().end(),
+        [&child](const PrimSpec &ps) { return ps.name() == child.name(); });
+
+    if (src_it != src.children().end()) {
+      if (!ApplyVariantToPrimSpecRec(depth + 1, child, (*src_it), warn, err)) {
+        return false;
+      }
+    }
+  }
+
+  // Add child not exists in dst.
+  for (auto &child : src.children()) {
+    auto dst_it = std::find_if(
+        dst.children().begin(), dst.children().end(),
+        [&child](const PrimSpec &ps) { return ps.name() == child.name(); });
+
+    if (dst_it == dst.children().end()) {
+      dst.children().push_back(child);
+    }
+  }
+
+  return true;
+}
+
 //
 // TODO: Support nested inherits?
 //
@@ -1333,6 +1398,11 @@ bool OverridePrimSpec(PrimSpec &dst, const PrimSpec &src, std::string *warn,
   }
 
   return detail::OverridePrimSpecRec(0, dst, src, warn, err);
+}
+
+bool ApplyVariantToPrimSpec(PrimSpec &dst, const PrimSpec &src, std::string *warn,
+                      std::string *err) {
+  return detail::ApplyVariantToPrimSpecRec(0, dst, src, warn, err);
 }
 
 bool InheritPrimSpec(PrimSpec &dst, const PrimSpec &src, std::string *warn,
@@ -1606,7 +1676,7 @@ bool VariantSelectPrimSpec(
     const std::map<std::string, std::string> &variant_selection,
     std::string *warn, std::string *err) {
   if (src.metas().variants && src.metas().variantSets) {
-    // do variant compsotion
+    // do variant composition
   } else if (src.metas().variants) {
     if (warn) {
       (*warn) +=
@@ -1705,7 +1775,7 @@ bool VariantSelectPrimSpec(
 
   // Local properties/metadatum wins against properties/metadataum from Variant
   ps.specifier() = Specifier::Over;
-  if (!OverridePrimSpec(dst, ps, warn, err)) {
+  if (!ApplyVariantToPrimSpec(dst, ps, warn, err)) {
     PUSH_ERROR_AND_RETURN("Failed to override PrimSpec.");
   }
 
