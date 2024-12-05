@@ -300,7 +300,8 @@ bool LoadAsset(AssetResolutionResolver &resolver,
     }
 
     PrimSpec ps;
-    if (!LoadMaterialXFromAsset(asset, asset_path, ps, &_warn, &_err)) {
+    if (!LoadMaterialXFromAsset(asset, asset_path, ps, &_warn, &_err) && 
+      error_when_asset_not_found) {
       PUSH_ERROR_AND_RETURN(
           fmt::format("Failed to open mtlx asset `{}`", asset_path));
     }
