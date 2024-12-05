@@ -1202,6 +1202,11 @@ static bool OverridePrimSpecRec(uint32_t depth, PrimSpec &dst,
     PUSH_ERROR_AND_RETURN("PrimSpec tree too deep.");
   }
 
+  // fix typeName if empty
+  if (dst.typeName().empty()) {
+    dst.typeName() = src.typeName();
+  }
+
   DCOUT("update_from");
   DCOUT(print_prim_metas(src.metas(), 1));
   // Override metadataum
@@ -1265,7 +1270,7 @@ static bool ApplyVariantToPrimSpecRec(uint32_t depth, PrimSpec &dst,
       }
     }
   }
-  else if (src.specifier() == Specifier::Over) {
+  else {
     // Override metadata
     dst.metas().update_from(src.metas());
 
@@ -1275,33 +1280,22 @@ static bool ApplyVariantToPrimSpecRec(uint32_t depth, PrimSpec &dst,
       dst.props()[prop.first] = prop.second;
     }
   }
-  else {
-    PUSH_ERROR_AND_RETURN("Invalid specifier for variant.");
-  }
 
-  // Override child primspecs.
-  for (auto &child : dst.children()) {
-    auto src_it = std::find_if(
-        src.children().begin(), src.children().end(),
-        [&child](const PrimSpec &ps) { return ps.name() == child.name(); });
+  // apply to children.
+    for (auto &child : src.children()) {
+      auto dst_it = std::find_if(
+          dst.children().begin(), dst.children().end(),
+          [&child](const PrimSpec &ps) { return ps.name() == child.name(); });
 
-    if (src_it != src.children().end()) {
-      if (!ApplyVariantToPrimSpecRec(depth + 1, child, (*src_it), warn, err)) {
-        return false;
+      if (dst_it != dst.children().end()) {
+        if (!ApplyVariantToPrimSpecRec(depth + 1, (*dst_it), child, warn, err)) {
+          return false;
+        }
+      }
+      else {
+        dst.children().push_back(child);
       }
     }
-  }
-
-  // Add child not exists in dst.
-  for (auto &child : src.children()) {
-    auto dst_it = std::find_if(
-        dst.children().begin(), dst.children().end(),
-        [&child](const PrimSpec &ps) { return ps.name() == child.name(); });
-
-    if (dst_it == dst.children().end()) {
-      dst.children().push_back(child);
-    }
-  }
 
   return true;
 }
@@ -1344,15 +1338,29 @@ static bool InheritPrimSpecImpl(PrimSpec &dst, const PrimSpec &src,
 
   // Overide child primspecs.
   for (auto &child : ps.children()) {
-    auto src_it = std::find_if(dst.children().begin(), dst.children().end(),
+    auto dst_it = std::find_if(dst.children().begin(), dst.children().end(),
                                [&child](const PrimSpec &primspec) {
                                  return primspec.name() == child.name();
                                });
 
-    if (src_it != dst.children().end()) {
-      if (!OverridePrimSpecRec(1, child, (*src_it), warn, err)) {
+    if (dst_it != dst.children().end()) {
+      if (!OverridePrimSpecRec(1, child, (*dst_it), warn, err)) {
         return false;
       }
+    }
+    else {
+      ps.children().push_back(child);
+    }
+  }
+
+  for (auto &child : dst.children()) {
+    auto src_it = std::find_if(ps.children().begin(), ps.children().end(),
+                               [&child](const PrimSpec &primspec) {
+                                 return primspec.name() == child.name();
+                               });
+
+    if (src_it == ps.children().end()) {
+      ps.children().push_back(child);
     }
   }
 
@@ -1682,6 +1690,7 @@ bool VariantSelectPrimSpec(
       (*warn) +=
           "`variants` are authored, but `variantSets` is not authored.\n";
     }
+
     dst = src;
     dst.metas().variants.reset();
     dst.metas().variantSets.reset();
@@ -1710,8 +1719,6 @@ bool VariantSelectPrimSpec(
 
   dst = src;
 
-  PrimSpec ps = src;  // temp PrimSpec. Init with src.
-
   // Evaluate from the last element.
   for (int64_t i = int64_t(variantSetMeta.second.size()) - 1; i >= 0; i--) {
     const auto &variantSetName = variantSetMeta.second[size_t(i)];
@@ -1729,6 +1736,7 @@ bool VariantSelectPrimSpec(
     }
 
     if (dst.variantSets().count(variantSetName)) {
+
       const auto &vss = dst.variantSets().at(variantSetName);
 
       if (vss.variantSet.count(variantName)) {
@@ -1737,46 +1745,12 @@ bool VariantSelectPrimSpec(
         DCOUT(fmt::format("variantSet[{}] Select variant: {}", variantSetName,
                           variantName));
 
-        //
-        // Promote variant content to PrimSpec.
-        //
-
-        // over-like operation
-        ps.metas().update_from(vs.metas(), /* override_authored */ true);
-
-        for (const auto &prop : vs.props()) {
-          DCOUT("prop: " << prop.first);
-          // override existing prop
-          ps.props()[prop.first] = prop.second;
+        // Local properties/metadatum wins against properties/metadataum from Variant
+        if (!ApplyVariantToPrimSpec(dst, vs, warn, err)) {
+          PUSH_ERROR_AND_RETURN("Failed to apply Variant to PrimSpec.");
         }
-
-        for (const auto &child : vs.children()) {
-          // Override if PrimSpec has same name
-          // simple linear scan.
-          auto it = std::find_if(ps.children().begin(), ps.children().end(),
-                                 [&child](const PrimSpec &item) {
-                                   return (item.name() == child.name());
-                                 });
-
-          if (it != ps.children().end()) {
-            (*it) = child;  // replace
-          } else {
-            ps.children().push_back(child);
-          }
-        }
-
-        // TODO:
-        // - [ ] update `primChildren` and `properties` metadataum if required.
       }
     }
-  }
-
-  DCOUT("Variant resolved prim: " << prim::print_primspec(ps));
-
-  // Local properties/metadatum wins against properties/metadataum from Variant
-  ps.specifier() = Specifier::Over;
-  if (!ApplyVariantToPrimSpec(dst, ps, warn, err)) {
-    PUSH_ERROR_AND_RETURN("Failed to override PrimSpec.");
   }
 
   dst.metas().variants.reset();
