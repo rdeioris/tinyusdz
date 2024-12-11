@@ -641,11 +641,12 @@ bool CompositeReferencesRec(uint32_t depth, AssetResolutionResolver &resolver,
 
   if (primspec.metas().references) {
     const ListEditQual &qual = primspec.metas().references.value().first;
-    const auto &refecences = primspec.metas().references.value().second;
+    // we need a copy here as primspec is going to be updated
+    const auto references = primspec.metas().references.value().second;
 
     if ((qual == ListEditQual::ResetToExplicit) ||
         (qual == ListEditQual::Prepend)) {
-      for (const auto &reference : refecences) {
+      for (const auto &reference : references) {
         Layer layer;
         const PrimSpec *src_ps{nullptr};
 
@@ -711,7 +712,7 @@ bool CompositeReferencesRec(uint32_t depth, AssetResolutionResolver &resolver,
     } else if (qual == ListEditQual::Invalid) {
       PUSH_ERROR_AND_RETURN("Invalid listedit qualifier to for `references`.");
     } else if (qual == ListEditQual::Append) {
-      for (const auto &reference : refecences) {
+      for (const auto &reference : references) {
         Layer layer;
         const PrimSpec *src_ps{nullptr};
 
