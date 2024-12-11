@@ -1350,9 +1350,6 @@ static bool InheritPrimSpecImpl(PrimSpec &dst, const PrimSpec &src,
         return false;
       }
     }
-    else {
-      ps.children().push_back(child);
-    }
   }
 
   for (auto &child : dst.children()) {
