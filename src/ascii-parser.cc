@@ -788,6 +788,7 @@ bool AsciiParser::ParseDictElement(std::string *out_key,
   if (!ReadIdentifier(&key_name)) {
     // string literal is also supported. e.g. "0"
     if (ReadStringLiteral(&key_name)) {
+      std::replace( key_name.begin(), key_name.end(), ':', '_');
       // ok
     } else {
       PUSH_ERROR_AND_RETURN("Failed to parse dictionary key identifier.\n");
@@ -5035,7 +5036,7 @@ bool AsciiParser::ParseBlock(const Specifier spec, const int64_t primIdx,
         }
          continue;
       }
-      
+
       if (!Rewind(tok.size())) {
         return false;
       }
