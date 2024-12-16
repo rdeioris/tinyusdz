@@ -4983,7 +4983,59 @@ bool AsciiParser::ParseBlock(const Specifier spec, const int64_t primIdx,
 
         continue;
       }
+       else if (tok == "reorder") {
 
+        std::cout << "REORDER" << std::endl;
+        if (!SkipWhitespace()) {
+          return false;
+        }
+
+        std::string properties;
+        if (!ReadIdentifier(&properties)) {
+          return false;
+        }
+
+        std::cout << properties << std::endl;
+
+        if (!SkipWhitespace()) {
+          return false;
+        }
+
+        if (!Expect('=')) {
+          return false;
+        }
+
+        if (!SkipWhitespace()) {
+          return false;
+        }
+
+        std::cout << properties << std::endl;
+
+        if (!Expect('[')) {
+          return false;
+        }
+
+        if (!SkipCommentAndWhitespaceAndNewline()) {
+          return false;
+        }
+
+        while (!Eof()) {
+          {
+            char c;
+            if (!Char1(&c)) {
+              return false;
+            }
+
+            if (c == ']') {
+              std::cout << properties << std::endl;
+              break;
+            }
+          }
+
+        }
+         continue;
+      }
+      
       if (!Rewind(tok.size())) {
         return false;
       }
