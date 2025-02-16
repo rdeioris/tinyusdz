@@ -3396,6 +3396,7 @@ bool ReconstructPrim<DomeLight>(
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:color", DomeLight, light->color)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:intensity", DomeLight,
                    light->intensity)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:texture:file", DomeLight, light->file)
     PARSE_TIMESAMPLED_ENUM_PROPERTY(table, prop, kVisibility, Visibility, VisibilityEnumHandler, DomeLight,
                    light->visibility, options.strict_allowedToken_check)
     PARSE_UNIFORM_ENUM_PROPERTY(table, prop, kPurpose, Purpose, PurposeEnumHandler, DomeLight,
