@@ -409,6 +409,22 @@ bool LoadAsset(AssetResolutionResolver &resolver,
   return true;
 }
 
+static void FixRelationsAndConnectionsRec(PrimSpec &ps) {
+  std::cout << "FixRelationsAndConnectionsRec()" << std::endl;
+  for (auto &prop : ps.props()) {
+      if (prop.second.is_relationship()) {
+        std::cout << prop.first << " is relationship to " << prop.second.get_relationTarget().value().full_path_name() << std::endl;
+      }
+      else if (prop.second.is_attribute_connection()) {
+        std::cout << prop.first << " is connection to " << prop.second.get_attribute().get_connection().value().full_path_name() << std::endl;
+      }
+    }
+
+  for (auto &child : ps.children()) {
+    FixRelationsAndConnectionsRec(child);
+  }
+}
+
 bool CombinePrimSpecRec(uint32_t depth, PrimSpec &dst, const PrimSpec &src, std::string *warn,
                       std::string *err) {
   (void)warn;
@@ -627,6 +643,8 @@ bool CompositeReferencesRec(uint32_t depth, AssetResolutionResolver &resolver,
     PUSH_ERROR_AND_RETURN("Too deep.");
   }
 
+  std::cout << "COMPOSITE REFERENCE!!!! " << primspec.name() << " " << primspec.children().size() << std::endl;
+
   // Traverse children first.
   for (auto &child : primspec.children()) {
     if (!CompositeReferencesRec(depth + 1, resolver, asset_search_paths, in_layer, child,
@@ -685,6 +703,7 @@ bool CompositeReferencesRec(uint32_t depth, AssetResolutionResolver &resolver,
           continue;
         }
 
+        std::cout << "FOUNDDDDDDDDDDDDDDDDDD " << src_ps->name() << std::endl;
         // `inherits` op
         if (!InheritPrimSpec(primspec, *src_ps, warn, err)) {
           PUSH_ERROR_AND_RETURN(fmt::format("Failed to reference layer `{}`",
@@ -1215,10 +1234,18 @@ static bool OverridePrimSpecRec(uint32_t depth, PrimSpec &dst,
   dst.metas().update_from(src.metas());
   DCOUT("update_from done");
 
+  std::cout << "PRIMSPEC" << std::endl;
+
   // Override properties
   for (const auto &prop : src.props()) {
     // replace
     dst.props()[prop.first] = prop.second;
+    if (prop.second.is_relationship()) {
+        std::cout << prop.first << "is relationship" << std::endl;
+      }
+      else if (prop.second.is_attribute_connection()) {
+        std::cout << prop.first << "is connection" << std::endl;
+      }
   }
 
   // Override child primspecs.
@@ -1241,7 +1268,9 @@ static bool OverridePrimSpecRec(uint32_t depth, PrimSpec &dst,
         [&child](const PrimSpec &ps) { return ps.name() == child.name(); });
 
     if (dst_it == dst.children().end()) {
-      dst.children().push_back(child);
+      auto child_copy = child;
+      FixRelationsAndConnectionsRec(child_copy);
+      dst.children().push_back(child_copy);
     }
   }
 
@@ -1312,6 +1341,8 @@ static bool InheritPrimSpecImpl(PrimSpec &dst, const PrimSpec &src,
 
   DCOUT("src = " << prim::print_primspec(src));
 
+  std::cout << "AAAAAAAAAXXXXYYY" << src.name() << " " << src.children().size() << std::endl;
+
   // Create PrimSpec from `src`,
   // Then override it with `dst`
   PrimSpec ps = src;  // copy
@@ -1326,6 +1357,9 @@ static bool InheritPrimSpecImpl(PrimSpec &dst, const PrimSpec &src,
   // Override metadataum
   ps.metas().update_from(dst.metas());
 
+  std::cout << "SRC: " << src.name() << " DST: " << dst.name() << std::endl;
+  FixRelationsAndConnectionsRec(ps);
+
   // Override properties
   for (const auto &prop : dst.props()) {
     if (ps.props().count(prop.first)) {
@@ -1335,6 +1369,12 @@ static bool InheritPrimSpecImpl(PrimSpec &dst, const PrimSpec &src,
     else {
       // re-add
       ps.props()[prop.first] = prop.second;
+      if (prop.second.is_relationship()) {
+        std::cout << prop.first << "is relationship" << std::endl;
+      }
+      else if (prop.second.is_attribute_connection()) {
+        std::cout << prop.first << "is connection" << std::endl;
+      }
     }
   }
 
@@ -1346,20 +1386,25 @@ static bool InheritPrimSpecImpl(PrimSpec &dst, const PrimSpec &src,
                                });
 
     if (dst_it != dst.children().end()) {
+      std::cout << "overriding..." << std::endl;
       if (!OverridePrimSpecRec(1, child, (*dst_it), warn, err)) {
         return false;
       }
     }
   }
 
+  std::cout << "XXXXXXXXXXXXXXXXXXXXXX overriding... " << dst.name() << " " << dst.children().size() << "/" << ps.children().size() << std::endl;
   for (auto &child : dst.children()) {
+    std::cout << "checking... " << child.name() << std::endl;
     auto src_it = std::find_if(ps.children().begin(), ps.children().end(),
                                [&child](const PrimSpec &primspec) {
                                  return primspec.name() == child.name();
                                });
 
     if (src_it == ps.children().end()) {
-      ps.children().push_back(child);
+      auto child_copy = child;
+      FixRelationsAndConnectionsRec(child_copy);
+      ps.children().push_back(child_copy);
     }
   }
 
