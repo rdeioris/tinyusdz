@@ -1452,7 +1452,7 @@ bool OverridePrimSpec(PrimSpec &dst, const PrimSpec &src, std::string *warn,
   return detail::OverridePrimSpecRec(0, dst, src, warn, err);
 }
 
-bool ApplyVariantToPrimSpec(PrimSpec &dst, const PrimSpec &src, std::string *warn,
+static bool ApplyVariantToPrimSpec(PrimSpec &dst, const PrimSpec &src, std::string *warn,
                       std::string *err) {
   return detail::ApplyVariantToPrimSpecRec(0, dst, src, warn, err);
 }
