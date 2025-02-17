@@ -3214,6 +3214,11 @@ bool ReconstructPrim<SphereLight>(
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:radius", SphereLight, light->radius)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:intensity", SphereLight,
                    light->intensity)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:enable", DomeLight, light->shadowEnable)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:color", DomeLight, light->shadowColor)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:distance", DomeLight, light->shadowDistance)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloff", DomeLight, light->shadowFalloff)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloffGamma", DomeLight, light->shadowFalloffGamma)
     PARSE_TIMESAMPLED_ENUM_PROPERTY(table, prop, kVisibility, Visibility, VisibilityEnumHandler, SphereLight,
                    light->visibility, options.strict_allowedToken_check)
     PARSE_UNIFORM_ENUM_PROPERTY(table, prop, kPurpose, Purpose, PurposeEnumHandler, SphereLight,
@@ -3253,6 +3258,11 @@ bool ReconstructPrim<RectLight>(
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:width", RectLight, light->width)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:intensity", RectLight,
                    light->intensity)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:enable", DomeLight, light->shadowEnable)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:color", DomeLight, light->shadowColor)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:distance", DomeLight, light->shadowDistance)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloff", DomeLight, light->shadowFalloff)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloffGamma", DomeLight, light->shadowFalloffGamma)
     PARSE_EXTENT_ATTRIBUTE(table, prop, kExtent, RectLight, light->extent)
     PARSE_TIMESAMPLED_ENUM_PROPERTY(table, prop, kVisibility, Visibility, VisibilityEnumHandler, RectLight,
                    light->visibility, options.strict_allowedToken_check)
@@ -3287,6 +3297,11 @@ bool ReconstructPrim<DiskLight>(
   for (const auto &prop : properties) {
     // PARSE_PROPERTY(prop, "inputs:colorTemperature", light->colorTemperature)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:radius", DiskLight, light->radius)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:enable", DomeLight, light->shadowEnable)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:color", DomeLight, light->shadowColor)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:distance", DomeLight, light->shadowDistance)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloff", DomeLight, light->shadowFalloff)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloffGamma", DomeLight, light->shadowFalloffGamma)
     PARSE_EXTENT_ATTRIBUTE(table, prop, kExtent, DiskLight, light->extent)
     PARSE_TIMESAMPLED_ENUM_PROPERTY(table, prop, kVisibility, Visibility, VisibilityEnumHandler, DiskLight,
                        light->visibility, options.strict_allowedToken_check)
@@ -3322,6 +3337,11 @@ bool ReconstructPrim<CylinderLight>(
     // PARSE_PROPERTY(prop, "inputs:colorTemperature", light->colorTemperature)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:length", CylinderLight, light->length)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:radius", CylinderLight, light->radius)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:enable", DomeLight, light->shadowEnable)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:color", DomeLight, light->shadowColor)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:distance", DomeLight, light->shadowDistance)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloff", DomeLight, light->shadowFalloff)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloffGamma", DomeLight, light->shadowFalloffGamma)
     PARSE_EXTENT_ATTRIBUTE(table, prop, kExtent, CylinderLight, light->extent)
     PARSE_TIMESAMPLED_ENUM_PROPERTY(table, prop, kVisibility, Visibility, VisibilityEnumHandler, CylindrLight,
                    light->visibility, options.strict_allowedToken_check)
@@ -3356,6 +3376,11 @@ bool ReconstructPrim<DistantLight>(
   for (const auto &prop : properties) {
     // PARSE_PROPERTY(prop, "inputs:colorTemperature", light->colorTemperature)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:angle", DistantLight, light->angle)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:enable", DomeLight, light->shadowEnable)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:color", DomeLight, light->shadowColor)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:distance", DomeLight, light->shadowDistance)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloff", DomeLight, light->shadowFalloff)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloffGamma", DomeLight, light->shadowFalloffGamma)
     PARSE_UNIFORM_ENUM_PROPERTY(table, prop, kPurpose, Purpose, PurposeEnumHandler, DistantLight,
                        light->purpose, options.strict_allowedToken_check)
     PARSE_TIMESAMPLED_ENUM_PROPERTY(table, prop, kVisibility, Visibility, VisibilityEnumHandler, DistantLight,
@@ -3397,6 +3422,13 @@ bool ReconstructPrim<DomeLight>(
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:intensity", DomeLight,
                    light->intensity)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:texture:file", DomeLight, light->file)
+
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:enable", DomeLight, light->shadowEnable)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:color", DomeLight, light->shadowColor)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:distance", DomeLight, light->shadowDistance)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloff", DomeLight, light->shadowFalloff)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:falloffGamma", DomeLight, light->shadowFalloffGamma)
+
     PARSE_TIMESAMPLED_ENUM_PROPERTY(table, prop, kVisibility, Visibility, VisibilityEnumHandler, DomeLight,
                    light->visibility, options.strict_allowedToken_check)
     PARSE_UNIFORM_ENUM_PROPERTY(table, prop, kPurpose, Purpose, PurposeEnumHandler, DomeLight,
