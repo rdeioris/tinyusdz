@@ -140,6 +140,10 @@ struct Skeleton : Xformable {
       return false;
     }
 
+    if (!animationSource.has_value()) {
+      return false;
+    }
+
     const Relationship &rel = animationSource.value();
     if (qual) {
       (*qual) = rel.get_listedit_qual();
