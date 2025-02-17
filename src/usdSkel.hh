@@ -135,7 +135,7 @@ struct Skeleton : Xformable {
   }
 
 
-  bool get_animationSource(Path *path, ListEditQual *qual = nullptr) {
+  bool get_animationSource(Path *path, ListEditQual *qual = nullptr) const {
     if (!path) {
       return false;
     }
@@ -147,15 +147,14 @@ struct Skeleton : Xformable {
 
     if (rel.is_path()) {
       (*path) = rel.targetPath;
+      return true;
     } else if (rel.is_pathvector()) {
       if (rel.targetPathVector.size()) {
         (*path) = rel.targetPathVector[0];
+        return true;
       }
-    } else {
-      return false;
     }
-
-
+    
     return false;
   }
 
