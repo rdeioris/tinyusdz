@@ -1085,10 +1085,11 @@ bool AsciiParser::ReadBasicType(uint32_t *value) {
 #else
   // use jsteemann/atoi
   int retcode = 0;
+  const std::string str = ss.str();
   auto result = jsteemann::atoi<uint32_t>(
-      ss.str().c_str(), ss.str().c_str() + ss.str().size(), retcode);
-  DCOUT("sz = " << ss.str().size());
-  DCOUT("ss = " << ss.str() << ", retcode = " << retcode
+    str.data(), str.data() + str.size(), retcode);
+  DCOUT("sz = " << str.size());
+  DCOUT("ss = " << str << ", retcode = " << retcode
                 << ", result = " << result);
   if (retcode == jsteemann::SUCCESS) {
     (*value) = result;
