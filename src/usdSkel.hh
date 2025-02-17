@@ -154,7 +154,7 @@ struct Skeleton : Xformable {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -255,24 +255,24 @@ struct SkelAnimation {
   TypedAttribute<Animatable<std::vector<value::float3>>>
       translations;  // float3[] Joint-local translation.
 
-  bool get_blendShapes(std::vector<value::token> *toks);
+  bool get_blendShapes(std::vector<value::token> *toks) const;
   bool get_blendShapeWeights(std::vector<float> *vals,
                              const double t = value::TimeCode::Default(),
                              const value::TimeSampleInterpolationType tinterp =
-                                 value::TimeSampleInterpolationType::Held);
-  bool get_joints(std::vector<value::token> *toks);
+                                 value::TimeSampleInterpolationType::Held) const;
+  bool get_joints(std::vector<value::token> *toks) const;
   bool get_rotations(std::vector<value::quatf> *vals,
                      const double t = value::TimeCode::Default(),
                      const value::TimeSampleInterpolationType tinterp =
-                         value::TimeSampleInterpolationType::Held);
+                         value::TimeSampleInterpolationType::Held) const;
   bool get_scales(std::vector<value::half3> *vals,
                   const double t = value::TimeCode::Default(),
                   const value::TimeSampleInterpolationType tinterp =
-                      value::TimeSampleInterpolationType::Held);
+                      value::TimeSampleInterpolationType::Held) const;
   bool get_translations(std::vector<value::float3> *vals,
                         const double t = value::TimeCode::Default(),
                         const value::TimeSampleInterpolationType tinterp =
-                            value::TimeSampleInterpolationType::Held);
+                            value::TimeSampleInterpolationType::Held) const;
 
   std::pair<ListEditQual, std::vector<Reference>> references;
   std::pair<ListEditQual, std::vector<Payload>> payload;
