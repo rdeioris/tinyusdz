@@ -5022,12 +5022,12 @@ bool AsciiParser::ParseBlock(const Specifier spec, const int64_t primIdx,
 
         while (!Eof()) {
           {
-            char c;
-            if (!Char1(&c)) {
+            char ch;
+            if (!Char1(&ch)) {
               return false;
             }
 
-            if (c == ']') {
+            if (ch == ']') {
               std::cout << properties << std::endl;
               break;
             }
