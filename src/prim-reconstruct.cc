@@ -3392,7 +3392,13 @@ bool ReconstructPrim<DistantLight>(
   }
 
   for (const auto &prop : properties) {
-    // PARSE_PROPERTY(prop, "inputs:colorTemperature", light->colorTemperature)
+
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:color", DistantLight, light->color)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:intensity", DistantLight, light->intensity)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:exposure", DistantLight, light->exposure)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:normalize", DistantLight, light->normalize)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:enableColorTemperature", DistantLight, light->enableColorTemperature)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:colorTemperature", DistantLight, light->colorTemperature)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:angle", DistantLight, light->angle)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:enable", DistantLight, light->shadowEnable)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:color", DistantLight, light->shadowColor)
