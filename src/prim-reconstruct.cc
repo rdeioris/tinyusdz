@@ -3305,7 +3305,12 @@ bool ReconstructPrim<DiskLight>(
   }
 
   for (const auto &prop : properties) {
-    // PARSE_PROPERTY(prop, "inputs:colorTemperature", light->colorTemperature)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:color", DiskLight, light->color)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:intensity", DiskLight, light->intensity)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:exposure", DiskLight, light->exposure)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:normalize", DiskLight, light->normalize)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:enableColorTemperature", DiskLight, light->enableColorTemperature)
+    PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:colorTemperature", DiskLight, light->colorTemperature)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:radius", DiskLight, light->radius)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:enable", DiskLight, light->shadowEnable)
     PARSE_TYPED_ATTRIBUTE(table, prop, "inputs:shadow:color", DiskLight, light->shadowColor)
